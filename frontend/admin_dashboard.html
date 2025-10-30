@@ -497,7 +497,7 @@
         <div style="font-weight:700; font-size:18px;">📤 Upload Your Resume</div>
         <div class="upload-controls">
           <input type="file" id="resumeFile" accept="application/pdf" />
-          <button class="btn-primary" id="uploadBtn">Analyze Resume</button>
+          <button onclick="uploadResume()" class="btn-primary" id="uploadBtn">Analyze Resume</button>
         </div>
         
         <div class="status-messages" id="statusMessages"></div>
@@ -694,19 +694,21 @@
         </div>
       </div>
     </div>
-  </div>
-
-<script>
-const backend = "http://localhost:8000";
+  </div><script>
+const backend = "http://127.0.0.1:8000";
 let currentAnalysisId = null;
 let historyData = [];
+
+// ❌ Remove this line (it breaks JS before anything runs):
+// msg.className = `status-message status-${type}`;
+// ✅ That variable doesn't exist here — we define it inside addStatusMessage().
+
 
 // Logout functionality
 document.getElementById("logoutBtn").addEventListener("click", () => {
   if (confirm("Are you sure you want to logout?")) {
     currentAnalysisId = null;
     alert("Logged out successfully!");
-    // In production: window.location.href = "/login";
   }
 });
 
@@ -718,24 +720,32 @@ function clearStatusMessages() {
 function addStatusMessage(type, text, icon) {
   const container = document.getElementById("statusMessages");
   const msg = document.createElement("div");
-  msg.className = `status-message status-${type}`;
+
+  // ✅ Match your CSS classes
+  const fixedType =
+    type === "success-msg" ? "success-msg" :
+    type === "error-msg" ? "error-msg" :
+    type === "processing" ? "processing" :
+    type === "info" ? "info" : type;
+
+  msg.className = `status-message status-${fixedType}`;
   msg.innerHTML = `<span>${icon}</span><span>${text}</span>`;
   container.appendChild(msg);
   return msg;
 }
 
+// Upload Resume Button
 document.getElementById("uploadBtn").addEventListener("click", async () => {
   const fileEl = document.getElementById("resumeFile");
   if (!fileEl.files.length) {
     alert("Please choose a PDF file first.");
     return;
   }
-  
+
   const file = fileEl.files[0];
   clearStatusMessages();
-  
   addStatusMessage("processing", "Processing resume...", "⏳");
-  
+
   const form = new FormData();
   form.append("file", file);
 
@@ -744,14 +754,12 @@ document.getElementById("uploadBtn").addEventListener("click", async () => {
       method: "POST",
       body: form
     });
-    
+
     const data = await res.json();
     clearStatusMessages();
-    
+
     if (!res.ok) {
       addStatusMessage("error-msg", `Resume processing failed: ${data.detail || 'Unknown error'}`, "❌");
-      
-      // Add failed entry to history
       addToHistory({
         id: Date.now(),
         filename: file.name,
@@ -761,24 +769,15 @@ document.getElementById("uploadBtn").addEventListener("click", async () => {
       });
       return;
     }
-    
-    // Success messages
+
+    // ✅ Success
     addStatusMessage("success-msg", "Resume processed successfully!", "✅");
-    
-    // Detect target role
-    const targetRole = data.data.role_match || data.data.target_role || "Not detected";
+    const targetRole = data.data.role_match || "Not detected";
     addStatusMessage("info", `Detected target role: ${targetRole}`, "🎯");
-    
-    // Check if saved to history
-    const savedToHistory = data.saved_to_history !== false;
-    if (savedToHistory) {
-      addStatusMessage("success-msg", "Analysis saved to history!", "💾");
-    }
-    
+
     currentAnalysisId = data.id || Date.now();
     renderResult(data.data);
-    
-    // Add to history
+
     addToHistory({
       id: currentAnalysisId,
       filename: file.name,
@@ -790,12 +789,10 @@ document.getElementById("uploadBtn").addEventListener("click", async () => {
       created_at: new Date().toISOString(),
       data: data.data
     });
-    
   } catch (err) {
     console.error(err);
     clearStatusMessages();
     addStatusMessage("error-msg", `Upload failed: ${err.message}`, "❌");
-    
     addToHistory({
       id: Date.now(),
       filename: file.name,
@@ -813,24 +810,22 @@ function addToHistory(entry) {
 
 function renderHistory() {
   const historyList = document.getElementById("historyList");
-  
+
   if (historyData.length === 0) {
     historyList.innerHTML = '<div class="no-history">No analyses yet. Upload a resume to get started!</div>';
     return;
   }
-  
+
   historyList.innerHTML = "";
-  
-  historyData.forEach((item, index) => {
+
+  historyData.forEach((item) => {
     const div = document.createElement("div");
     div.className = "history-item";
-    if (item.id === currentAnalysisId) {
-      div.classList.add("active");
-    }
-    
+    if (item.id === currentAnalysisId) div.classList.add("active");
+
     const statusClass = item.status === 'success' ? 'status-success' : 'status-failed';
     const statusText = item.status === 'success' ? '✓ Success' : '✗ Failed';
-    
+
     div.innerHTML = `
       <div class="history-item-header">
         <div class="history-item-name">${item.filename || item.name || 'Resume #' + item.id}</div>
@@ -842,7 +837,7 @@ function renderHistory() {
         <span>${new Date(item.created_at).toLocaleString()}</span>
       </div>
     `;
-    
+
     div.addEventListener("click", () => {
       if (item.data && item.status === 'success') {
         currentAnalysisId = item.id;
@@ -850,112 +845,38 @@ function renderHistory() {
         renderHistory();
       }
     });
-    
+
     historyList.appendChild(div);
   });
 }
 
 function renderResult(parsed) {
-  // Personal Information
   document.getElementById("name").innerText = parsed.name || "—";
   document.getElementById("email").innerText = parsed.email || "—";
   document.getElementById("phone").innerText = parsed.phone || "—";
   document.getElementById("linkedin").innerText = parsed.linkedin || "—";
   document.getElementById("github").innerText = parsed.github || "—";
-
-  // Coding Profiles
-  document.getElementById("leetcode").innerText = parsed.coding_profiles?.leetcode?.username || parsed.leetcode || "—";
-
-  // Languages
-  const langs = parsed.languages || [];
-  const langsContainer = document.getElementById("languagesContent");
-  langsContainer.innerHTML = "";
-  if (langs.length === 0) {
-    langsContainer.innerHTML = "<div style='color:#6b7280;font-size:14px;'>—</div>";
-  } else {
-    langs.forEach(lang => {
-      const div = document.createElement("div");
-      div.className = "language-pill";
-      div.innerText = typeof lang === 'string' ? lang : `${lang.name} (${lang.proficiency})`;
-      langsContainer.appendChild(div);
-    });
-  }
-
-  // Education
+  document.getElementById("leetcode").innerText = parsed.leetcode || "—";
   document.getElementById("degree").innerText = parsed.education?.degree || "—";
   document.getElementById("university").innerText = parsed.education?.university || "—";
   document.getElementById("gradYear").innerText = parsed.education?.year || "—";
   document.getElementById("gpa").innerText = parsed.education?.gpa || "—";
 
-  // Internships
-  const internships = parsed.internships || [];
-  if (internships.length > 0) {
-    const intern = internships[0];
-    document.getElementById("internCompany").innerText = intern.company || "—";
-    document.getElementById("internPosition").innerText = intern.position || "—";
-    document.getElementById("internDuration").innerText = intern.duration || "—";
-    document.getElementById("internTech").innerText = intern.technologies || "—";
-  } else {
-    document.getElementById("internCompany").innerText = "—";
-    document.getElementById("internPosition").innerText = "—";
-    document.getElementById("internDuration").innerText = "—";
-    document.getElementById("internTech").innerText = "—";
-  }
-
-  // Certificates
-  const certs = parsed.certificates || [];
-  const certsContainer = document.getElementById("certificatesContent");
-  certsContainer.innerHTML = "";
-  if (certs.length === 0) {
-    certsContainer.innerHTML = "<div style='color:#6b7280;'>No certificates found</div>";
-  } else {
-    certs.forEach(cert => {
-      const div = document.createElement("div");
-      div.className = "cert-item";
-      div.innerHTML = `<div class="cert-name">${cert.name || cert}</div>
-                       ${cert.issuer ? `<div class="cert-issuer">${cert.issuer}</div>` : ''}`;
-      certsContainer.appendChild(div);
-    });
-  }
-
-  // Summary
-  document.getElementById("wordCount").innerText = parsed.word_count || "—";
-  document.getElementById("roleMatch").innerText = parsed.role_match || "—";
-  document.getElementById("summary").innerText = parsed.summary || "—";
-  
-  const atsScore = parsed.ats_score || "—";
-  document.getElementById("atsScore").innerText = atsScore;
-  document.getElementById("atsPercent").innerText = atsScore !== "—" ? "%" : "";
-
   // Skills
   const tech = parsed.skills?.technical || [];
   const soft = parsed.skills?.soft || [];
   const techContainer = document.getElementById("techSkills");
-  techContainer.innerHTML = "";
-  if (tech.length === 0) {
-    techContainer.innerHTML = "<span style='color:#6b7280;'>—</span>";
-  } else {
-    tech.forEach(s => {
-      const el = document.createElement("div");
-      el.className = "skill-pill";
-      el.innerText = s;
-      techContainer.appendChild(el);
-    });
-  }
-
   const softContainer = document.getElementById("softSkills");
-  softContainer.innerHTML = "";
-  if (soft.length === 0) {
-    softContainer.innerHTML = "<span style='color:#6b7280;'>—</span>";
-  } else {
-    soft.forEach(s => {
-      const el = document.createElement("div");
-      el.className = "skill-pill";
-      el.innerText = s;
-      softContainer.appendChild(el);
-    });
-  }
+  techContainer.innerHTML = tech.length ? tech.map(s => `<div class='skill-pill'>${s}</div>`).join("") : "<span style='color:#6b7280;'>—</span>";
+  softContainer.innerHTML = soft.length ? soft.map(s => `<div class='skill-pill'>${s}</div>`).join("") : "<span style='color:#6b7280;'>—</span>";
+
+  document.getElementById("wordCount").innerText = parsed.word_count || "—";
+  document.getElementById("roleMatch").innerText = parsed.role_match || "—";
+  document.getElementById("summary").innerText = parsed.summary || "—";
+  document.getElementById("atsScore").innerText = parsed.ats_score || "—";
+  document.getElementById("atsPercent").innerText = parsed.ats_score ? "%" : "";
 }
 
-// Initialize
+// Initialize history on load
 renderHistory();
+</script>

@@ -905,4 +905,57 @@ function renderResult(parsed) {
   // Certificates
   const certs = parsed.certificates || [];
   const certsContainer = document.getElementById("certificatesContent");
-  certsContainer.
+  certsContainer.innerHTML = "";
+  if (certs.length === 0) {
+    certsContainer.innerHTML = "<div style='color:#6b7280;'>No certificates found</div>";
+  } else {
+    certs.forEach(cert => {
+      const div = document.createElement("div");
+      div.className = "cert-item";
+      div.innerHTML = `<div class="cert-name">${cert.name || cert}</div>
+                       ${cert.issuer ? `<div class="cert-issuer">${cert.issuer}</div>` : ''}`;
+      certsContainer.appendChild(div);
+    });
+  }
+
+  // Summary
+  document.getElementById("wordCount").innerText = parsed.word_count || "—";
+  document.getElementById("roleMatch").innerText = parsed.role_match || "—";
+  document.getElementById("summary").innerText = parsed.summary || "—";
+  
+  const atsScore = parsed.ats_score || "—";
+  document.getElementById("atsScore").innerText = atsScore;
+  document.getElementById("atsPercent").innerText = atsScore !== "—" ? "%" : "";
+
+  // Skills
+  const tech = parsed.skills?.technical || [];
+  const soft = parsed.skills?.soft || [];
+  const techContainer = document.getElementById("techSkills");
+  techContainer.innerHTML = "";
+  if (tech.length === 0) {
+    techContainer.innerHTML = "<span style='color:#6b7280;'>—</span>";
+  } else {
+    tech.forEach(s => {
+      const el = document.createElement("div");
+      el.className = "skill-pill";
+      el.innerText = s;
+      techContainer.appendChild(el);
+    });
+  }
+
+  const softContainer = document.getElementById("softSkills");
+  softContainer.innerHTML = "";
+  if (soft.length === 0) {
+    softContainer.innerHTML = "<span style='color:#6b7280;'>—</span>";
+  } else {
+    soft.forEach(s => {
+      const el = document.createElement("div");
+      el.className = "skill-pill";
+      el.innerText = s;
+      softContainer.appendChild(el);
+    });
+  }
+}
+
+// Initialize
+renderHistory();

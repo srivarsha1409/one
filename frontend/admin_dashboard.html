@@ -575,8 +575,8 @@
             <span class="info-card-icon">🗣</span>
             <span>Languages</span>
           </div>
-          <div class="languages-pills" id="languagesContent">
-            <div style="color:#6b7280;font-size:14px;">—</div>
+          <div class="languagesContent" id="languagesContent">
+            <div style="color:#6b7280;font-size:14px;"></div>
           </div>
         </div>
       </div>
@@ -882,6 +882,36 @@ function renderResult(parsed) {
   } else {
     internshipsContainer.innerHTML = `<div style="color:#6b7280;">No internships found</div>`;
   }
+  // Languages Known// Languages Known
+const languagesContainer = document.getElementById("languagesContent");
+
+if (parsed.languages) {
+  let langs = parsed.languages;
+
+  // If it's a single string like "English, Tamil"
+  if (typeof langs === "string") {
+    langs = langs.split(/[,;]/).map(l => l.trim()).filter(Boolean);
+  }
+
+  // If array of strings or objects
+  if (langs.length > 0) {
+    languagesContainer.innerHTML = langs
+      .map((lang) => {
+        if (typeof lang === "string") {
+          return `<div class="language-pill">🌐 ${lang}</div>`;
+        } else {
+          return `<div class="language-pill">🌐 ${lang.language || "—"} ${lang.proficiency ? `(${lang.proficiency})` : ""}</div>`;
+        }
+      })
+      .join("");
+  } else {
+    languagesContainer.innerHTML = `<div style="color:#6b7280;">No languages found</div>`;
+  }
+} else {
+  languagesContainer.innerHTML = `<div style="color:#6b7280;">No languages found</div>`;
+}
+
+
 
 }
 function downloadReport(data) {

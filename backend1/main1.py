@@ -136,9 +136,27 @@ Resume text:
         data.setdefault("codechef", "")
         data.setdefault("hackerrank", "")
 
+        # ✅ Step 6: Normalize and fix languages
+        langs = data.get("languages", [])
+        if isinstance(langs, list):
+            # Filter out empty strings and whitespace
+            langs = [l.strip() for l in langs if l and l.strip()]
+            normalized = normalize_languages(langs)
+        else:
+            normalized = []
 
-        # ✅ Step 6: Normalize languages
-        data["languages"] = normalize_languages(data["languages"])
+        # Fallback: detect from resume text if still empty
+        if not normalized:
+            common_langs = ["English", "Tamil", "Hindi", "Kannada", "Telugu", "Malayalam", "French"]
+            normalized = [lang for lang in common_langs if lang.lower() in text.lower()]
+
+        # Final fallback if none found
+        if not normalized:
+            normalized = ["English"]  # Default assumption
+
+        data["languages"] = normalized
+
+
 
         # Step 7: Simple ATS scoring
         tech_skills = data.get("skills", {}).get("technical", [])

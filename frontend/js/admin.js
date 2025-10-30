@@ -31,7 +31,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 throw new Error(`Error: ${response.statusText}`);
             }
 
-            const data = await response.json();
+            const result = await response.json();
+            const data = result.data || {}; // ✅ Extract real data
             loader.style.display = "none";
             displayResults(data);
         } catch (error) {
@@ -62,13 +63,17 @@ document.addEventListener("DOMContentLoaded", function () {
                 <h4>🧩 Skills Analysis</h4>
                 <p><b>Technical:</b> ${data.skills?.technical?.join(", ") || "-"}</p>
                 <p><b>Soft:</b> ${data.skills?.soft?.join(", ") || "-"}</p>
-                <p><b>Area of Interest:</b> ${data.skills?.area_of_interest?.join(", ") || "-"}</p>
+            </div>
+
+            <div class="analysis-section">
+                <h4>🌐 Languages</h4>
+                <p>${data.languages?.join(", ") || "-"}</p>
             </div>
 
             <div class="analysis-section">
                 <h4>📊 ATS Analysis</h4>
                 <p><b>ATS Score:</b> ${data.ats_score || "0"}%</p>
-                <p><b>Role Match:</b> ${data.role_match || "0"}%</p>
+                <p><b>Role Match:</b> ${data.role_match || "General"}</p>
                 <p><b>Word Count:</b> ${data.word_count || "0"}</p>
                 <p><b>Criteria Used:</b> Experience, Skills, Keywords, Summary, Structure</p>
             </div>

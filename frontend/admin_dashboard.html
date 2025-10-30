@@ -1,4 +1,3 @@
-<!-- admin_dashboard.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,120 +5,724 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Admin Dashboard - Resume Insight</title>
   <style>
-    /* minimal style: use your design later; this matches the aesthetic from your screenshots */
+    * { box-sizing: border-box; }
     body {
       font-family: Poppins, system-ui, sans-serif;
       margin:0;
-      background: radial-gradient(circle at top left, #cfe9ff, #d6f8e8, #ffe4f1);
+      background: linear-gradient(135deg, #e3f2fd 0%, #e8f5e9 50%, #fce4ec 100%);
       min-height:100vh;
       color:#111;
+      display: flex;
     }
-    .wrap { max-width:1200px; margin:24px auto; padding:20px; }
-    header { display:flex; justify-content:space-between; align-items:center; gap:16px; }
-    .title { font-size:28px; font-weight:700; }
-    .upload-area { margin-top:18px; background:linear-gradient(90deg,#1e90ff,#3a7bd5); color:#fff; padding:18px; border-radius:14px; box-shadow:0 6px 18px rgba(0,0,0,0.08); }
-    .upload-controls { margin-top:12px; display:flex; gap:10px; align-items:center; }
-    input[type="file"]{ padding:8px; }
-    button { padding:10px 14px; border-radius:8px; border:none; cursor:pointer; }
-    .btn-primary { background:#00aaff; color:#fff; font-weight:700; }
-    .btn-ghost { background:transparent; color:#333; border:1px solid #ddd; }
-    .tabs { display:flex; gap:8px; margin-top:16px; }
-    .tab { background:#fff; padding:8px 12px; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,0.05); }
-    .panel { margin-top:20px; display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
-    .card { background:#fff; padding:16px; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,0.05); }
-    .card h4 { margin:0 0 8px 0; color:#0f1724; }
-    .skills { display:flex; flex-direction:column; gap:8px; }
-    .skill-pill { background:#f0f8ff; padding:8px 10px; border-radius:999px; display:inline-block; }
-    .history { margin-top:24px; background:#fff; padding:12px; border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,0.05); }
-    pre { white-space:pre-wrap; word-break:break-word; }
-    @media (max-width:900px){
-      .panel { grid-template-columns:1fr; }
+    
+    /* Sidebar Styles */
+    .sidebar {
+      width: 280px;
+      background: #fff;
+      box-shadow: 2px 0 12px rgba(0,0,0,0.08);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+    }
+    
+    .sidebar-header {
+      padding: 20px;
+      background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+      color: #fff;
+    }
+    
+    .sidebar-header h2 {
+      margin: 0 0 8px 0;
+      font-size: 18px;
+      font-weight: 700;
+    }
+    
+    .sidebar-header .user-info {
+      font-size: 13px;
+      opacity: 0.9;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .logout-btn {
+      margin-top: 12px;
+      padding: 8px 16px;
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: #fff;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.3s;
+      width: 100%;
+    }
+    
+    .logout-btn:hover {
+      background: rgba(255,255,255,0.3);
+    }
+    
+    .history-section {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+    }
+    
+    .history-section h3 {
+      margin: 0 0 16px 0;
+      font-size: 14px;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .history-item {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .history-item:hover {
+      background: #f3f4f6;
+      border-color: #3b82f6;
+      transform: translateX(4px);
+    }
+    
+    .history-item.active {
+      background: #dbeafe;
+      border-color: #3b82f6;
+    }
+    
+    .history-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 8px;
+    }
+    
+    .history-item-name {
+      font-weight: 600;
+      font-size: 13px;
+      color: #1f2937;
+      flex: 1;
+    }
+    
+    .history-item-status {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-weight: 600;
+    }
+    
+    .status-success {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    
+    .status-failed {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    
+    .history-item-role {
+      font-size: 11px;
+      color: #6366f1;
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+    
+    .history-item-meta {
+      font-size: 11px;
+      color: #9ca3af;
+      display: flex;
+      gap: 8px;
+    }
+    
+    .no-history {
+      text-align: center;
+      color: #9ca3af;
+      padding: 40px 20px;
+      font-size: 13px;
+    }
+    
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      overflow-y: auto;
+    }
+    
+    .wrap { 
+      max-width: 1400px; 
+      margin: 24px auto; 
+      padding: 20px; 
+    }
+    
+    header { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      gap: 16px; 
+      margin-bottom: 20px; 
+    }
+    
+    .title { 
+      font-size: 28px; 
+      font-weight: 700; 
+    }
+    
+    .upload-area { 
+      margin-top: 18px; 
+      background: linear-gradient(90deg,#1e90ff,#3a7bd5); 
+      color: #fff; 
+      padding: 18px; 
+      border-radius: 14px; 
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08); 
+    }
+    
+    .upload-controls { 
+      margin-top: 12px; 
+      display: flex; 
+      gap: 10px; 
+      align-items: center; 
+      flex-wrap: wrap; 
+    }
+    
+    input[type="file"] { 
+      padding: 8px; 
+      background: rgba(255,255,255,0.9); 
+      border-radius: 6px; 
+      border: none;
+    }
+    
+    button { 
+      padding: 10px 14px; 
+      border-radius: 8px; 
+      border: none; 
+      cursor: pointer; 
+      font-weight: 600; 
+      transition: all 0.3s; 
+    }
+    
+    button:disabled { 
+      opacity: 0.5; 
+      cursor: not-allowed; 
+    }
+    
+    .btn-primary { 
+      background: #00aaff; 
+      color: #fff; 
+      font-weight: 700; 
+    }
+    
+    .btn-primary:hover:not(:disabled) { 
+      background: #0099ee; 
+      transform: translateY(-2px); 
+    }
+    
+    .status-messages {
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    .status-message {
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      animation: slideIn 0.3s ease-out;
+    }
+    
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .status-processing {
+      background: rgba(254, 243, 199, 0.3);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+    
+    .status-success-msg {
+      background: rgba(209, 250, 229, 0.3);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+    
+    .status-error-msg {
+      background: rgba(254, 226, 226, 0.3);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+    
+    .status-info {
+      background: rgba(219, 234, 254, 0.3);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+    
+    .section-title { 
+      font-size: 24px; 
+      font-weight: 700; 
+      margin: 30px 0 20px 0; 
+      color: #1a237e;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .info-grid { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+      gap: 16px; 
+      margin-bottom: 24px;
+    }
+    
+    .info-card {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+      transition: all 0.3s;
+    }
+    
+    .info-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+    
+    .info-card-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 12px;
+    }
+    
+    .info-card-icon {
+      font-size: 20px;
+    }
+    
+    .info-card-value {
+      font-size: 15px;
+      color: #4b5563;
+      word-break: break-word;
+    }
+    
+    .detail-row {
+      display: flex;
+      margin-bottom: 10px;
+    }
+    
+    .detail-label {
+      font-weight: 600;
+      color: #374151;
+      min-width: 120px;
+    }
+    
+    .detail-value {
+      color: #6b7280;
+      flex: 1;
+    }
+    
+    .certificates-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 12px;
+    }
+    
+    .cert-item {
+      background: #f0f9ff;
+      padding: 12px;
+      border-radius: 8px;
+      border-left: 4px solid #3b82f6;
+    }
+    
+    .cert-name {
+      font-weight: 600;
+      font-size: 14px;
+      color: #1e3a8a;
+    }
+    
+    .cert-issuer {
+      font-size: 12px;
+      color: #64748b;
+      margin-top: 4px;
+    }
+    
+    .skills-container {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    
+    .skills-column {
+      flex: 1;
+      min-width: 250px;
+    }
+    
+    .skills-column h4 {
+      font-size: 16px;
+      color: #1f2937;
+      margin-bottom: 12px;
+    }
+    
+    .skills-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    
+    .skill-pill {
+      background: #dbeafe;
+      color: #1e40af;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    
+    .languages-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    
+    .language-pill {
+      background: #fef3c7;
+      color: #92400e;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    
+    .ats-score-display {
+      text-align: center;
+      padding: 20px;
+    }
+    
+    .ats-score-number {
+      font-size: 48px;
+      font-weight: 700;
+      color: #1e3a8a;
+    }
+    
+    .ats-criteria {
+      margin-top: 10px;
+      color: #6b7280;
+      font-size: 14px;
+    }
+    
+    @media (max-width: 1024px) {
+      body {
+        flex-direction: column;
+      }
+      .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+      }
+      .history-section {
+        max-height: 300px;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .info-grid { 
+        grid-template-columns: 1fr; 
+      }
+      header { 
+        flex-direction: column; 
+        align-items: flex-start; 
+      }
     }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <div>
-        <div class="title">Resume Analysis — Admin Dashboard</div>
-        <div style="color:#4b5563">Upload a candidate resume (PDF) to extract details and compute ATS score</div>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h2>📊 Resume Insight</h2>
+      <div class="user-info">
+        <span>👤</span>
+        <span id="currentUser">Admin User</span>
       </div>
-      <div>
-        <button class="btn-primary" id="downloadPdfBtn" disabled>Download Report (PDF)</button>
-      </div>
-    </header>
-
-    <!-- Upload area -->
-    <div class="upload-area">
-      <div style="font-weight:700">Upload Resume</div>
-      <div class="upload-controls">
-        <input type="file" id="resumeFile" accept="application/pdf" />
-        <button class="btn-primary" id="uploadBtn">Analyze</button>
-        <div id="uploadStatus" style="margin-left:12px;color:#fff"></div>
-      </div>
-
-      <div class="tabs">
-        <div class="tab">Personal Information</div>
-        <div class="tab">Summary</div>
-        <div class="tab">Skills Analysis</div>
-        <div class="tab">ATS Analysis</div>
+      <button class="logout-btn" id="logoutBtn">🚪 Logout</button>
+    </div>
+    
+    <div class="history-section">
+      <h3>📊 Analysis History</h3>
+      <div id="historyList">
+        <div class="no-history">No analyses yet. Upload a resume to get started!</div>
       </div>
     </div>
+  </div>
 
-    <!-- Panels -->
-    <div class="panel" id="resultPanel" style="margin-top:18px;">
-      <div class="card">
-        <h4>🔎 Personal Information</h4>
-        <div><strong>Name:</strong> <span id="name">—</span></div>
-        <div><strong>Email:</strong> <span id="email">—</span></div>
-        <div><strong>Phone:</strong> <span id="phone">—</span></div>
-        <div><strong>LinkedIn:</strong> <span id="linkedin">—</span></div>
-        <div><strong>GitHub:</strong> <span id="github">—</span></div>
+  <!-- Main Content -->
+  <div class="main-content">
+    <div class="wrap">
+      <header>
+        <div>
+          <div class="title">Resume Analysis Dashboard</div>
+          <div style="color:#4b5563">Upload a candidate resume (PDF) to extract details and compute ATS score</div>
+        </div>
+        <div>
+          <button class="btn-primary" id="downloadPdfBtn" disabled>📥 Download Report</button>
+        </div>
+      </header>
+
+      <!-- Upload area -->
+      <div class="upload-area">
+        <div style="font-weight:700; font-size:18px;">📤 Upload Your Resume</div>
+        <div class="upload-controls">
+          <input type="file" id="resumeFile" accept="application/pdf" />
+          <button class="btn-primary" id="uploadBtn">Analyze Resume</button>
+        </div>
+        
+        <div class="status-messages" id="statusMessages"></div>
       </div>
 
-      <div class="card">
-        <h4>📄 Resume Summary</h4>
-        <div><strong>Word count:</strong> <span id="wordCount">—</span></div>
-        <div><strong>Role match %:</strong> <span id="roleMatch">—</span></div>
-        <div style="margin-top:8px;">
-          <strong>Summary:</strong>
-          <div id="summary" style="margin-top:6px;color:#374151"></div>
+      <!-- Extracted Details Section -->
+      <div class="section-title">🧠 Extracted Details</div>
+      
+      <!-- Personal Info Grid -->
+      <div class="info-grid">
+        <div class="info-card">
+          <div class="info-card-header">
+            <span class="info-card-icon">👤</span>
+            <span>Name</span>
+          </div>
+          <div class="info-card-value" id="name">—</div>
+        </div>
+
+        <div class="info-card">
+          <div class="info-card-header">
+            <span class="info-card-icon">📧</span>
+            <span>Email</span>
+          </div>
+          <div class="info-card-value" id="email">—</div>
+        </div>
+
+        <div class="info-card">
+          <div class="info-card-header">
+            <span class="info-card-icon">📱</span>
+            <span>Phone</span>
+          </div>
+          <div class="info-card-value" id="phone">—</div>
+        </div>
+
+        <div class="info-card">
+          <div class="info-card-header">
+            <span class="info-card-icon">🔗</span>
+            <span>LinkedIn</span>
+          </div>
+          <div class="info-card-value" id="linkedin">—</div>
+        </div>
+
+        <div class="info-card">
+          <div class="info-card-header">
+            <span class="info-card-icon">🐙</span>
+            <span>GitHub</span>
+          </div>
+          <div class="info-card-value" id="github">—</div>
+        </div>
+
+        <div class="info-card">
+          <div class="info-card-header">
+            <span class="info-card-icon">💻</span>
+            <span>LeetCode</span>
+          </div>
+          <div class="info-card-value" id="leetcode">—</div>
+        </div>
+
+        <div class="info-card">
+          <div class="info-card-header">
+            <span class="info-card-icon">🗣</span>
+            <span>Languages</span>
+          </div>
+          <div class="languages-pills" id="languagesContent">
+            <div style="color:#6b7280;font-size:14px;">—</div>
+          </div>
         </div>
       </div>
 
-      <div class="card">
-        <h4>🧾 ATS Score</h4>
-        <div style="font-size:28px;font-weight:700;color:#1e3a8a"><span id="atsScore">—</span>%</div>
-        <div style="margin-top:8px;color:#6b7280" id="atsCriteria">Criteria: —</div>
-      </div>
-    </div>
-
-    <!-- skills -->
-    <div style="margin-top:18px;">
-      <div class="card">
-        <h4>🛠 Skills Analysis</h4>
-        <div style="display:flex;gap:20px;flex-wrap:wrap">
-          <div style="flex:1">
-            <h5>Technical Skills</h5>
-            <div id="techSkills" class="skills">—</div>
+      <!-- Education Section -->
+      <div class="section-title">🎓 Education</div>
+      <div class="info-grid">
+        <div class="info-card">
+          <div class="info-card-header">
+            <span class="info-card-icon">🎓</span>
+            <span>Degree</span>
           </div>
-          <div style="flex:1">
-            <h5>Soft Skills</h5>
-            <div id="softSkills" class="skills">—</div>
+          <div class="info-card-value" id="degree">—</div>
+        </div>
+
+        <div class="info-card">
+          <div class="info-card-header">
+            <span class="info-card-icon">🏫</span>
+            <span>University</span>
+          </div>
+          <div class="info-card-value" id="university">—</div>
+        </div>
+
+        <div class="info-card">
+          <div class="info-card-header">
+            <span class="info-card-icon">📅</span>
+            <span>Graduation Year</span>
+          </div>
+          <div class="info-card-value" id="gradYear">—</div>
+        </div>
+
+        <div class="info-card">
+          <div class="info-card-header">
+            <span class="info-card-icon">📊</span>
+            <span>GPA/CGPA</span>
+          </div>
+          <div class="info-card-value" id="gpa">—</div>
+        </div>
+      </div>
+
+      <!-- Internships Section -->
+      <div class="section-title">💼 Internships</div>
+      <div class="info-grid" id="internshipsGrid">
+        <div class="info-card">
+          <div class="info-card-header">
+            <span class="info-card-icon">🏢</span>
+            <span>Company</span>
+          </div>
+          <div class="info-card-value" id="internCompany">—</div>
+        </div>
+
+        <div class="info-card">
+          <div class="info-card-header">
+            <span class="info-card-icon">💼</span>
+            <span>Position</span>
+          </div>
+          <div class="info-card-value" id="internPosition">—</div>
+        </div>
+
+        <div class="info-card">
+          <div class="info-card-header">
+            <span class="info-card-icon">⏱</span>
+            <span>Duration</span>
+          </div>
+          <div class="info-card-value" id="internDuration">—</div>
+        </div>
+
+        <div class="info-card">
+          <div class="info-card-header">
+            <span class="info-card-icon">⚙️</span>
+            <span>Technologies</span>
+          </div>
+          <div class="info-card-value" id="internTech">—</div>
+        </div>
+      </div>
+
+      <!-- Certificates Section -->
+      <div class="section-title">📜 Certificates</div>
+      <div class="info-card">
+        <div class="certificates-grid" id="certificatesContent">
+          <div style="color:#6b7280;">No certificates found</div>
+        </div>
+      </div>
+
+      <!-- Skills & ATS Section -->
+      <div class="section-title">📊 Analysis Summary</div>
+      <div class="info-grid" style="grid-template-columns:2fr 1fr;">
+        <div class="info-card">
+          <h3 style="margin:0 0 16px 0; color:#1f2937;">🛠 Skills Analysis</h3>
+          <div class="skills-container">
+            <div class="skills-column">
+              <h4>Technical Skills</h4>
+              <div class="skills-pills" id="techSkills">
+                <span style="color:#6b7280;">—</span>
+              </div>
+            </div>
+            <div class="skills-column">
+              <h4>Soft Skills</h4>
+              <div class="skills-pills" id="softSkills">
+                <span style="color:#6b7280;">—</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <h3 style="margin:0 0 16px 0; color:#1f2937;">🧾 ATS Score</h3>
+          <div class="ats-score-display">
+            <div class="ats-score-number"><span id="atsScore">—</span><span style="font-size:24px;" id="atsPercent"></span></div>
+            <div class="ats-criteria" id="atsCriteria">Format, Keywords & Sections</div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- history -->
-    <div class="history" id="historyBox">
-      <h4>Analysis History</h4>
-      <div id="historyList">No records yet.</div>
+      <!-- Resume Summary -->
+      <div class="info-card">
+        <h3 style="margin:0 0 16px 0; color:#1f2937;">📄 Resume Summary</h3>
+        <div class="detail-row">
+          <div class="detail-label">Word count:</div>
+          <div class="detail-value" id="wordCount">—</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Role match:</div>
+          <div class="detail-value" id="roleMatch">—</div>
+        </div>
+        <div style="margin-top:16px;">
+          <div class="detail-label" style="margin-bottom:8px;">Summary:</div>
+          <div id="summary" style="color:#4b5563;line-height:1.6;font-size:14px;">—</div>
+        </div>
+      </div>
     </div>
   </div>
 
 <script>
-const backend = "http://localhost:8000"; // FastAPI server
+const backend = "http://localhost:8000";
+let currentAnalysisId = null;
+let historyData = [];
+
+// Logout functionality
+document.getElementById("logoutBtn").addEventListener("click", () => {
+  if (confirm("Are you sure you want to logout?")) {
+    currentAnalysisId = null;
+    alert("Logged out successfully!");
+    // In production: window.location.href = "/login";
+  }
+});
+
+// Status message functions
+function clearStatusMessages() {
+  document.getElementById("statusMessages").innerHTML = "";
+}
+
+function addStatusMessage(type, text, icon) {
+  const container = document.getElementById("statusMessages");
+  const msg = document.createElement("div");
+  msg.className = `status-message status-${type}`;
+  msg.innerHTML = `<span>${icon}</span><span>${text}</span>`;
+  container.appendChild(msg);
+  return msg;
+}
 
 document.getElementById("uploadBtn").addEventListener("click", async () => {
   const fileEl = document.getElementById("resumeFile");
@@ -127,8 +730,12 @@ document.getElementById("uploadBtn").addEventListener("click", async () => {
     alert("Please choose a PDF file first.");
     return;
   }
+  
   const file = fileEl.files[0];
-  document.getElementById("uploadStatus").innerText = "Uploading..."
+  clearStatusMessages();
+  
+  addStatusMessage("processing", "Processing resume...", "⏳");
+  
   const form = new FormData();
   form.append("file", file);
 
@@ -137,86 +744,165 @@ document.getElementById("uploadBtn").addEventListener("click", async () => {
       method: "POST",
       body: form
     });
+    
     const data = await res.json();
+    clearStatusMessages();
+    
     if (!res.ok) {
-      alert("Error: " + data.detail || JSON.stringify(data));
-      document.getElementById("uploadStatus").innerText = "";
+      addStatusMessage("error-msg", `Resume processing failed: ${data.detail || 'Unknown error'}`, "❌");
+      
+      // Add failed entry to history
+      addToHistory({
+        id: Date.now(),
+        filename: file.name,
+        status: 'failed',
+        created_at: new Date().toISOString(),
+        error: data.detail || 'Processing failed'
+      });
       return;
     }
-    document.getElementById("uploadStatus").innerText = "Done";
+    
+    // Success messages
+    addStatusMessage("success-msg", "Resume processed successfully!", "✅");
+    
+    // Detect target role
+    const targetRole = data.data.role_match || data.data.target_role || "Not detected";
+    addStatusMessage("info", `Detected target role: ${targetRole}`, "🎯");
+    
+    // Check if saved to history
+    const savedToHistory = data.saved_to_history !== false;
+    if (savedToHistory) {
+      addStatusMessage("success-msg", "Analysis saved to history!", "💾");
+    }
+    
+    currentAnalysisId = data.id || Date.now();
     renderResult(data.data);
-    fetchHistory(); // refresh history
+    
+    // Add to history
+    addToHistory({
+      id: currentAnalysisId,
+      filename: file.name,
+      status: 'success',
+      name: data.data.name,
+      role: targetRole,
+      ats_score: data.data.ats_score,
+      summary: data.data.summary,
+      created_at: new Date().toISOString(),
+      data: data.data
+    });
+    
   } catch (err) {
     console.error(err);
-    alert("Upload failed: " + err.message);
-    document.getElementById("uploadStatus").innerText = "";
+    clearStatusMessages();
+    addStatusMessage("error-msg", `Upload failed: ${err.message}`, "❌");
+    
+    addToHistory({
+      id: Date.now(),
+      filename: file.name,
+      status: 'failed',
+      created_at: new Date().toISOString(),
+      error: err.message
+    });
   }
 });
 
+function addToHistory(entry) {
+  historyData.unshift(entry);
+  renderHistory();
+}
+
+function renderHistory() {
+  const historyList = document.getElementById("historyList");
+  
+  if (historyData.length === 0) {
+    historyList.innerHTML = '<div class="no-history">No analyses yet. Upload a resume to get started!</div>';
+    return;
+  }
+  
+  historyList.innerHTML = "";
+  
+  historyData.forEach((item, index) => {
+    const div = document.createElement("div");
+    div.className = "history-item";
+    if (item.id === currentAnalysisId) {
+      div.classList.add("active");
+    }
+    
+    const statusClass = item.status === 'success' ? 'status-success' : 'status-failed';
+    const statusText = item.status === 'success' ? '✓ Success' : '✗ Failed';
+    
+    div.innerHTML = `
+      <div class="history-item-header">
+        <div class="history-item-name">${item.filename || item.name || 'Resume #' + item.id}</div>
+        <div class="history-item-status ${statusClass}">${statusText}</div>
+      </div>
+      ${item.role ? `<div class="history-item-role">🎯 ${item.role}</div>` : ''}
+      <div class="history-item-meta">
+        ${item.ats_score ? `<span>ATS: ${item.ats_score}%</span>` : ''}
+        <span>${new Date(item.created_at).toLocaleString()}</span>
+      </div>
+    `;
+    
+    div.addEventListener("click", () => {
+      if (item.data && item.status === 'success') {
+        currentAnalysisId = item.id;
+        renderResult(item.data);
+        renderHistory();
+      }
+    });
+    
+    historyList.appendChild(div);
+  });
+}
+
 function renderResult(parsed) {
+  // Personal Information
   document.getElementById("name").innerText = parsed.name || "—";
   document.getElementById("email").innerText = parsed.email || "—";
   document.getElementById("phone").innerText = parsed.phone || "—";
   document.getElementById("linkedin").innerText = parsed.linkedin || "—";
   document.getElementById("github").innerText = parsed.github || "—";
-  document.getElementById("wordCount").innerText = parsed.word_count || "—";
-  document.getElementById("roleMatch").innerText = parsed.role_match || "—";
-  document.getElementById("summary").innerText = parsed.summary || "—";
-  document.getElementById("atsScore").innerText = parsed.ats_score || "—";
-  // criteria (we will display a simple text until you want detail)
-  document.getElementById("atsCriteria").innerText = "Format & keywords & sections";
 
-  // skills
-  const tech = parsed.skills?.technical || [];
-  const soft = parsed.skills?.soft || [];
-  const techContainer = document.getElementById("techSkills");
-  techContainer.innerHTML = "";
-  if (tech.length === 0) techContainer.innerText = "—";
-  else tech.forEach(s => {
-    const el = document.createElement("div");
-    el.className = "skill-pill";
-    el.innerText = s;
-    techContainer.appendChild(el);
-  });
+  // Coding Profiles
+  document.getElementById("leetcode").innerText = parsed.coding_profiles?.leetcode?.username || parsed.leetcode || "—";
 
-  const softContainer = document.getElementById("softSkills");
-  softContainer.innerHTML = "";
-  if (soft.length === 0) softContainer.innerText = "—";
-  else soft.forEach(s => {
-    const el = document.createElement("div");
-    el.className = "skill-pill";
-    el.innerText = s;
-    softContainer.appendChild(el);
-  });
-}
-
-async function fetchHistory(){
-  try {
-    const res = await fetch(backend + "/history");
-    const data = await res.json();
-    const list = data.history || [];
-    const box = document.getElementById("historyList");
-    if (!list.length) {
-      box.innerText = "No records yet.";
-      return;
-    }
-    box.innerHTML = "";
-    list.forEach(r => {
-      const el = document.createElement("div");
-      el.style.borderBottom = "1px solid #eee";
-      el.style.padding = "8px 4px";
-      el.innerHTML = `<strong>${r.filename || r.name || 'Resume #' + r.id}</strong>
-                      <div style="color:#555;font-size:13px">${(r.summary || '').slice(0,140)}${r.summary && r.summary.length>140 ? '...' : ''}</div>
-                      <div style="font-size:12px;color:#777">ATS: ${r.ats_score} • Role Match: ${r.role_match} • ${new Date(r.created_at).toLocaleString()}</div>`;
-      box.appendChild(el);
+  // Languages
+  const langs = parsed.languages || [];
+  const langsContainer = document.getElementById("languagesContent");
+  langsContainer.innerHTML = "";
+  if (langs.length === 0) {
+    langsContainer.innerHTML = "<div style='color:#6b7280;font-size:14px;'>—</div>";
+  } else {
+    langs.forEach(lang => {
+      const div = document.createElement("div");
+      div.className = "language-pill";
+      div.innerText = typeof lang === 'string' ? lang : `${lang.name} (${lang.proficiency})`;
+      langsContainer.appendChild(div);
     });
-  } catch (err) {
-    console.error(err);
   }
-}
 
-// start
-fetchHistory();
-</script>
-</body>
-</html>
+  // Education
+  document.getElementById("degree").innerText = parsed.education?.degree || "—";
+  document.getElementById("university").innerText = parsed.education?.university || "—";
+  document.getElementById("gradYear").innerText = parsed.education?.year || "—";
+  document.getElementById("gpa").innerText = parsed.education?.gpa || "—";
+
+  // Internships
+  const internships = parsed.internships || [];
+  if (internships.length > 0) {
+    const intern = internships[0];
+    document.getElementById("internCompany").innerText = intern.company || "—";
+    document.getElementById("internPosition").innerText = intern.position || "—";
+    document.getElementById("internDuration").innerText = intern.duration || "—";
+    document.getElementById("internTech").innerText = intern.technologies || "—";
+  } else {
+    document.getElementById("internCompany").innerText = "—";
+    document.getElementById("internPosition").innerText = "—";
+    document.getElementById("internDuration").innerText = "—";
+    document.getElementById("internTech").innerText = "—";
+  }
+
+  // Certificates
+  const certs = parsed.certificates || [];
+  const certsContainer = document.getElementById("certificatesContent");
+  certsContainer.

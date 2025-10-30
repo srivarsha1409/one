@@ -2,12 +2,11 @@ from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from openai import OpenAI
 import pdfplumber
-import re
 import os
 from dotenv import load_dotenv
 import json
 
-# Load environment variables (for API key)
+# Load environment variables
 load_dotenv()
 
 app = FastAPI()
@@ -23,17 +22,39 @@ app.add_middleware(
 
 # ✅ Initialize OpenAI client for OpenRouter
 client = OpenAI(
-    api_key=os.getenv("OPENROUTER_API_KEY"),
+    api_key=os.getenv("OPENAI_API_KEY") or os.getenv("OPENROUTER_API_KEY"),
     base_url="https://openrouter.ai/api/v1"
 )
+
+# ✅ Normalize languages
+def normalize_languages(languages):
+    """Normalize language names like tamil/TAMIL/English/ENGLISH."""
+    standard_langs = {
+        "english": "English", "tamil": "Tamil", "hindi": "Hindi", "telugu": "Telugu",
+        "malayalam": "Malayalam", "kannada": "Kannada", "french": "French",
+        "german": "German", "spanish": "Spanish", "bengali": "Bengali",
+        "marathi": "Marathi", "punjabi": "Punjabi", "gujarati": "Gujarati",
+        "urdu": "Urdu", "oriya": "Oriya", "nepali": "Nepali",
+    }
+
+    normalized = []
+    for lang in languages:
+        key = lang.strip().lower()
+        if key in standard_langs:
+            proper = standard_langs[key]
+            if proper not in normalized:
+                normalized.append(proper)
+    return normalized
+
 
 @app.get("/")
 def home():
     return {"message": "AI Resume Insight (OpenRouter) backend running ✅"}
 
+
 @app.post("/upload_resume")
 async def upload_resume(file: UploadFile = File(...)):
-    """Extract text from uploaded PDF and analyze it using OpenRouter AI."""
+    """Extract text from uploaded PDF and analyze using OpenRouter AI."""
     try:
         # Step 1: Extract text from PDF
         with pdfplumber.open(file.file) as pdf:
@@ -42,10 +63,10 @@ async def upload_resume(file: UploadFile = File(...)):
         if not text.strip():
             return {"error": "No readable text found in PDF."}
 
-        # Step 2: Build prompt
+        # Step 2: AI Prompt
         prompt = f"""
 You are an expert resume analysis assistant.
-Extract and return structured JSON data with the following schema:
+Return strictly valid JSON only in this format:
 
 {{
   "name": "",
@@ -54,13 +75,15 @@ Extract and return structured JSON data with the following schema:
   "linkedin": "",
   "github": "",
   "leetcode": "",
-  "languages": ["English", "Tamil"],
+  "languages": [],
   "education": {{
       "degree": "",
       "university": "",
       "year": "",
       "gpa": ""
   }},
+  "codechef":"",
+  "hackerrank":"",
   "internships": [
       {{
           "company": "",
@@ -82,11 +105,11 @@ Resume text:
 {text}
         """
 
-        # Step 3: Send to OpenRouter (GPT-4-Turbo, Claude, etc.)
+        # Step 3: Call OpenRouter
         response = client.chat.completions.create(
-            model="gpt-4-turbo",  # You can change this (see note below)
+            model="gpt-4-turbo",
             messages=[
-                {"role": "system", "content": "You are an AI that returns valid JSON resume analysis only."},
+                {"role": "system", "content": "You are an AI that returns only valid JSON resume analysis."},
                 {"role": "user", "content": prompt}
             ],
             temperature=0.2,
@@ -94,9 +117,30 @@ Resume text:
 
         ai_output = response.choices[0].message.content
         ai_output = ai_output.strip().replace("```json", "").replace("```", "")
-        data = json.loads(ai_output)
 
-        # Step 4: Simple ATS scoring
+        # Step 4: Parse JSON safely
+        try:
+            data = json.loads(ai_output)
+        except json.JSONDecodeError:
+            print("⚠️ Invalid JSON from AI:\n", ai_output)
+            return {"error": "AI response was invalid. Please try again."}
+
+        # ✅ Step 5: Ensure all expected fields exist
+        data.setdefault("role_match", "General")
+        data.setdefault("languages", [])
+        data.setdefault("skills", {"technical": [], "soft": []})
+        data.setdefault("education", {"degree": "", "university": "", "year": "", "gpa": ""})
+        data.setdefault("internships", [])
+        data.setdefault("certificates", [])
+        data.setdefault("summary", "")
+        data.setdefault("codechef", "")
+        data.setdefault("hackerrank", "")
+
+
+        # ✅ Step 6: Normalize languages
+        data["languages"] = normalize_languages(data["languages"])
+
+        # Step 7: Simple ATS scoring
         tech_skills = data.get("skills", {}).get("technical", [])
         ats_score = min(100, len(tech_skills) * 10 + 20)
 

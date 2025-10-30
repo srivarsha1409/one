@@ -504,7 +504,7 @@
       </div>
 
       <!-- Extracted Details Section -->
-      <div class="section-title">🧠 Extracted Details</div>
+      <div class="section-title">Personal Information</div>
       
       <!-- Personal Info Grid -->
       <div class="info-grid">
@@ -555,6 +555,20 @@
           </div>
           <div class="info-card-value" id="leetcode">—</div>
         </div>
+        <div class="info-card">
+          <div class="info-card-header">
+            <span class="info-card-icon">🔗</span>
+            <span>Codechef</span>
+          </div>
+          <div class="info-card-value" id="codechef">—</div>
+        </div>
+        <div class="info-card">
+          <div class="info-card-header">
+            <span class="info-card-icon">🔗</span>
+            <span>Hacker rank</span>
+          </div>
+          <div class="info-card-value" id="hackerrank">—</div>
+        </div>
 
         <div class="info-card">
           <div class="info-card-header">
@@ -568,7 +582,7 @@
       </div>
 
       <!-- Education Section -->
-      <div class="section-title">🎓 Education</div>
+      <div class="section-title">Education</div>
       <div class="info-grid">
         <div class="info-card">
           <div class="info-card-header">
@@ -604,43 +618,17 @@
       </div>
 
       <!-- Internships Section -->
-      <div class="section-title">💼 Internships</div>
-      <div class="info-grid" id="internshipsGrid">
-        <div class="info-card">
-          <div class="info-card-header">
-            <span class="info-card-icon">🏢</span>
-            <span>Company</span>
-          </div>
-          <div class="info-card-value" id="internCompany">—</div>
-        </div>
+     <!-- Internships Section -->
+<div class="section-title">Internships</div>
+<div class="info-card">
+  <div class="certificates-grid" id="internshipsContent">
+    <div style="color:#6b7280;">No internships found</div>
+  </div>
+</div>
 
-        <div class="info-card">
-          <div class="info-card-header">
-            <span class="info-card-icon">💼</span>
-            <span>Position</span>
-          </div>
-          <div class="info-card-value" id="internPosition">—</div>
-        </div>
-
-        <div class="info-card">
-          <div class="info-card-header">
-            <span class="info-card-icon">⏱</span>
-            <span>Duration</span>
-          </div>
-          <div class="info-card-value" id="internDuration">—</div>
-        </div>
-
-        <div class="info-card">
-          <div class="info-card-header">
-            <span class="info-card-icon">⚙️</span>
-            <span>Technologies</span>
-          </div>
-          <div class="info-card-value" id="internTech">—</div>
-        </div>
-      </div>
 
       <!-- Certificates Section -->
-      <div class="section-title">📜 Certificates</div>
+      <div class="section-title">Certificates</div>
       <div class="info-card">
         <div class="certificates-grid" id="certificatesContent">
           <div style="color:#6b7280;">No certificates found</div>
@@ -648,7 +636,7 @@
       </div>
 
       <!-- Skills & ATS Section -->
-      <div class="section-title">📊 Analysis Summary</div>
+      <div class="section-title">Analysis Summary</div>
       <div class="info-grid" style="grid-template-columns:2fr 1fr;">
         <div class="info-card">
           <h3 style="margin:0 0 16px 0; color:#1f2937;">🛠 Skills Analysis</h3>
@@ -777,6 +765,8 @@ document.getElementById("uploadBtn").addEventListener("click", async () => {
 
     currentAnalysisId = data.id || Date.now();
     renderResult(data.data);
+    document.getElementById("downloadPdfBtn").disabled = false;
+    document.getElementById("downloadPdfBtn").onclick = () => downloadReport(data.data);
 
     addToHistory({
       id: currentAnalysisId,
@@ -854,6 +844,8 @@ function renderResult(parsed) {
   document.getElementById("name").innerText = parsed.name || "—";
   document.getElementById("email").innerText = parsed.email || "—";
   document.getElementById("phone").innerText = parsed.phone || "—";
+  document.getElementById("codechef").innerText = parsed.codechef || "—";
+  document.getElementById("hackerrank").innerText = parsed.hackerrank || "—";
   document.getElementById("linkedin").innerText = parsed.linkedin || "—";
   document.getElementById("github").innerText = parsed.github || "—";
   document.getElementById("leetcode").innerText = parsed.leetcode || "—";
@@ -875,7 +867,63 @@ function renderResult(parsed) {
   document.getElementById("summary").innerText = parsed.summary || "—";
   document.getElementById("atsScore").innerText = parsed.ats_score || "—";
   document.getElementById("atsPercent").innerText = parsed.ats_score ? "%" : "";
+  const internshipsContainer = document.getElementById("internshipsContent");
+  if (parsed.internships && parsed.internships.length > 0) {
+    internshipsContainer.innerHTML = parsed.internships
+      .map((intern) => `
+        <div class="cert-item">
+          <div class="cert-name">🏢 ${intern.company || "—"}</div>
+          <div class="cert-issuer">💼 ${intern.position || "—"}</div>
+          <div class="cert-issuer">⏱ ${intern.duration || "—"}</div>
+          <div class="cert-issuer">⚙️ ${intern.technologies || "—"}</div>
+        </div>
+      `)
+      .join("");
+  } else {
+    internshipsContainer.innerHTML = `<div style="color:#6b7280;">No internships found</div>`;
+  }
+
 }
+function downloadReport(data) {
+  const reportContent = `
+  Resume Analysis Report
+  ===========================
+  Name: ${data.name || "N/A"}
+  Email: ${data.email || "N/A"}
+  Phone: ${data.phone || "N/A"}
+  LinkedIn: ${data.linkedin || "N/A"}
+  GitHub: ${data.github || "N/A"}
+  LeetCode: ${data.leetcode || "N/A"}
+  CodeChef: ${data.codechef || "N/A"}
+  HackerRank: ${data.hackerrank || "N/A"}
+
+  --- Education ---
+  Degree: ${data.education?.degree || "N/A"}
+  University: ${data.education?.university || "N/A"}
+  Year: ${data.education?.year || "N/A"}
+  GPA: ${data.education?.gpa || "N/A"}
+
+  --- Skills ---
+  Technical: ${(data.skills?.technical || []).join(", ") || "N/A"}
+  Soft: ${(data.skills?.soft || []).join(", ") || "N/A"}
+
+  --- Summary ---
+  Word Count: ${data.word_count || "N/A"}
+  Role Match: ${data.role_match || "N/A"}
+  ATS Score: ${data.ats_score ? data.ats_score + "%" : "N/A"}
+  Summary: ${data.summary || "N/A"}
+  `;
+
+  const blob = new Blob([reportContent], { type: "text/plain" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${data.name || "resume_analysis"}_report.txt`;
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
 
 // Initialize history on load
 renderHistory();

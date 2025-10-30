@@ -1,0 +1,81 @@
+body {
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  color: white;
+  font-family: "Poppins", sans-serif;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+}
+
+header {
+  background: rgba(0, 188, 212, 0.2);
+  padding: 20px;
+  font-size: 1.6rem;
+  letter-spacing: 1px;
+}
+
+.container {
+  margin-top: 50px;
+}
+
+.upload-section {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 30px;
+  border-radius: 10px;
+  width: 60%;
+  margin: auto;
+}
+
+input[type="file"] {
+  margin: 15px;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  background-color: white;
+  color: #333;
+}
+
+.analyze-btn {
+  padding: 10px 20px;
+  background-color: #00bcd4;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.analyze-btn:hover {
+  background-color: #0097a7;
+}
+
+.back-btn {
+  margin-bottom: 20px;
+  background-color: #ff4081;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.back-btn:hover {
+  background-color: #e91e63;
+}
+
+.results-container {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 25px;
+  margin-top: 30px;
+  width: 70%;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: left;
+}
+
+.section {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+}

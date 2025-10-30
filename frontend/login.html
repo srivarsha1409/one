@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login - Resume Keyword Generator</title>
+
+  <style>
+    /* ===== Animated Gradient Background ===== */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Poppins", sans-serif;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(-45deg, #00c6ff, #0072ff, #6a00f4, #b400ff);
+      background-size: 400% 400%;
+      animation: gradientMove 10s ease infinite;
+    }
+
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* ===== Login Container ===== */
+    .login-box {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(12px);
+      border-radius: 25px;
+      box-shadow: 0 0 40px rgba(0, 0, 0, 0.3);
+      width: 400px;
+      padding: 40px 30px;
+      text-align: center;
+      color: #fff;
+      animation: fadeIn 1.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .login-box h2 {
+      font-size: 2rem;
+      margin-bottom: 15px;
+      font-weight: 600;
+    }
+
+    .tab-buttons {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 25px;
+    }
+
+    .tab-buttons button {
+      flex: 1;
+      padding: 10px 5px;
+      border: none;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      margin: 0 5px;
+    }
+
+    .tab-buttons button.active {
+      background: linear-gradient(90deg, #00e5ff, #0072ff);
+      box-shadow: 0 0 10px rgba(0, 229, 255, 0.7);
+    }
+
+    .tab-buttons button:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .form-section {
+      display: none;
+      animation: fadeIn 0.5s ease;
+    }
+
+    .form-section.active {
+      display: block;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 12px 15px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+      font-size: 1rem;
+      outline: none;
+      transition: background 0.3s ease;
+    }
+
+    .input-field::placeholder {
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .input-field:focus {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(90deg, #00e5ff, #0072ff);
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .login-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 0 15px rgba(0, 229, 255, 0.8);
+    }
+
+    .signup-link {
+      margin-top: 20px;
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    .signup-link a {
+      color: #00e5ff;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .signup-link a:hover {
+      text-decoration: underline;
+    }
+
+    /* ===== Back Button ===== */
+    .back-btn {
+      display: inline-block;
+      margin-top: 25px;
+      padding: 10px 18px;
+      border: none;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .back-btn:hover {
+      background: linear-gradient(90deg, #00e5ff, #0072ff);
+      box-shadow: 0 0 10px rgba(0, 229, 255, 0.6);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="login-box">
+    <h2>Login Portal</h2>
+
+    <!-- Tab Buttons -->
+    <div class="tab-buttons">
+      <button class="tab-btn active" onclick="showForm('admin')">Admin</button>
+      <button class="tab-btn" onclick="showForm('trainer')">Trainer</button>
+      <button class="tab-btn" onclick="showForm('user')">User</button>
+    </div>
+
+    <!-- Admin Form -->
+    <div id="admin" class="form-section active">
+      <form action="admin_dashboard.html" method="POST">
+        <input type="email" class="input-field" placeholder="Admin Email" required>
+        <input type="password" class="input-field" placeholder="Password" required>
+        <button type="submit" class="login-btn">Login as Admin</button>
+      </form>
+    </div>
+
+    <!-- Trainer Form -->
+    <div id="trainer" class="form-section">
+      <form action="trainer_dashboard.html" method="POST">
+        <input type="email" class="input-field" placeholder="Trainer Email" required>
+        <input type="password" class="input-field" placeholder="Password" required>
+        <button type="submit" class="login-btn">Login as Trainer</button>
+      </form>
+    </div>
+
+    <!-- User Form -->
+    <div id="user" class="form-section">
+      <form action="user_dashboard.html" method="POST">
+        <input type="email" class="input-field" placeholder="User Email" required>
+        <input type="password" class="input-field" placeholder="Password" required>
+        <button type="submit" class="login-btn">Login as User</button>
+      </form>
+    </div>
+
+    <div class="signup-link">
+      Don’t have an account? <a href="signup.html">Sign up</a>
+    </div>
+
+    <a href="index.html" class="back-btn">⬅ Back to Home</a>
+  </div>
+
+  <script>
+    function showForm(role) {
+      document.querySelectorAll('.form-section').forEach(form => form.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
+      document.getElementById(role).classList.add('active');
+      event.target.classList.add('active');
+    }
+  </script>
+</body>
+</html>

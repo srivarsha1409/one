@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume Keyword Generator</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+
+    body {
+      height: 100vh;
+      background: linear-gradient(135deg, #ff00cc, #333399, #00c9ff, #92fe9d);
+      background-size: 400% 400%;
+      animation: gradientFlow 10s ease infinite;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+    }
+
+    @keyframes gradientFlow {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    header {
+      padding: 25px 60px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.1);
+      box-shadow: 0 0 20px rgba(255,255,255,0.2);
+    }
+
+    .logo {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #fff;
+      text-shadow: 0 0 10px rgba(255,255,255,0.6);
+    }
+
+    nav a {
+      color: #fff;
+      margin-left: 25px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: 0.3s;
+    }
+
+    nav a:hover {
+      text-shadow: 0 0 15px rgba(255,255,255,0.8);
+    }
+
+    .hero {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px;
+    }
+
+    .hero h1 {
+      font-size: 3.5rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      max-width: 750px;
+      margin-bottom: 40px;
+      color: #f0f0f0;
+    }
+
+    .get-started-btn {
+      background: linear-gradient(90deg, #ff512f, #dd2476, #24c6dc, #514a9d);
+      background-size: 300% 300%;
+      color: #fff;
+      border: none;
+      padding: 16px 60px;
+      border-radius: 50px;
+      font-size: 1.3rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.4s ease;
+      animation: btnGradient 5s infinite alternate ease-in-out;
+      box-shadow: 0 0 25px rgba(255, 255, 255, 0.5);
+    }
+
+    @keyframes btnGradient {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 100% 50%; }
+    }
+
+    .get-started-btn:hover {
+      transform: scale(1.08);
+      box-shadow: 0 0 40px rgba(255, 255, 255, 0.8);
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">🔍 Resume Keyword Generator</div>
+    <nav>
+      <a href="about.html">About</a>
+      <a href="features.html">Features</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <h1>Enhance Your Resume with AI-Powered Insights</h1>
+    <p>Automatically extract top-performing keywords, analyze GitHub and LeetCode activity, 
+       and make your resume stand out to recruiters effortlessly.</p>
+    <button class="get-started-btn" onclick="window.location.href='login.html'">Get Started</button>
+  </section>
+
+  <footer>✨ Built by <strong>Sri Varsha, Yuvashri, Arjun Hareesh & Manoj</strong></footer>
+</body>
+</html>

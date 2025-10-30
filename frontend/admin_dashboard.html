@@ -1,0 +1,222 @@
+<!-- admin_dashboard.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Dashboard - Resume Insight</title>
+  <style>
+    /* minimal style: use your design later; this matches the aesthetic from your screenshots */
+    body {
+      font-family: Poppins, system-ui, sans-serif;
+      margin:0;
+      background: radial-gradient(circle at top left, #cfe9ff, #d6f8e8, #ffe4f1);
+      min-height:100vh;
+      color:#111;
+    }
+    .wrap { max-width:1200px; margin:24px auto; padding:20px; }
+    header { display:flex; justify-content:space-between; align-items:center; gap:16px; }
+    .title { font-size:28px; font-weight:700; }
+    .upload-area { margin-top:18px; background:linear-gradient(90deg,#1e90ff,#3a7bd5); color:#fff; padding:18px; border-radius:14px; box-shadow:0 6px 18px rgba(0,0,0,0.08); }
+    .upload-controls { margin-top:12px; display:flex; gap:10px; align-items:center; }
+    input[type="file"]{ padding:8px; }
+    button { padding:10px 14px; border-radius:8px; border:none; cursor:pointer; }
+    .btn-primary { background:#00aaff; color:#fff; font-weight:700; }
+    .btn-ghost { background:transparent; color:#333; border:1px solid #ddd; }
+    .tabs { display:flex; gap:8px; margin-top:16px; }
+    .tab { background:#fff; padding:8px 12px; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,0.05); }
+    .panel { margin-top:20px; display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+    .card { background:#fff; padding:16px; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,0.05); }
+    .card h4 { margin:0 0 8px 0; color:#0f1724; }
+    .skills { display:flex; flex-direction:column; gap:8px; }
+    .skill-pill { background:#f0f8ff; padding:8px 10px; border-radius:999px; display:inline-block; }
+    .history { margin-top:24px; background:#fff; padding:12px; border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,0.05); }
+    pre { white-space:pre-wrap; word-break:break-word; }
+    @media (max-width:900px){
+      .panel { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <div class="title">Resume Analysis — Admin Dashboard</div>
+        <div style="color:#4b5563">Upload a candidate resume (PDF) to extract details and compute ATS score</div>
+      </div>
+      <div>
+        <button class="btn-primary" id="downloadPdfBtn" disabled>Download Report (PDF)</button>
+      </div>
+    </header>
+
+    <!-- Upload area -->
+    <div class="upload-area">
+      <div style="font-weight:700">Upload Resume</div>
+      <div class="upload-controls">
+        <input type="file" id="resumeFile" accept="application/pdf" />
+        <button class="btn-primary" id="uploadBtn">Analyze</button>
+        <div id="uploadStatus" style="margin-left:12px;color:#fff"></div>
+      </div>
+
+      <div class="tabs">
+        <div class="tab">Personal Information</div>
+        <div class="tab">Summary</div>
+        <div class="tab">Skills Analysis</div>
+        <div class="tab">ATS Analysis</div>
+      </div>
+    </div>
+
+    <!-- Panels -->
+    <div class="panel" id="resultPanel" style="margin-top:18px;">
+      <div class="card">
+        <h4>🔎 Personal Information</h4>
+        <div><strong>Name:</strong> <span id="name">—</span></div>
+        <div><strong>Email:</strong> <span id="email">—</span></div>
+        <div><strong>Phone:</strong> <span id="phone">—</span></div>
+        <div><strong>LinkedIn:</strong> <span id="linkedin">—</span></div>
+        <div><strong>GitHub:</strong> <span id="github">—</span></div>
+      </div>
+
+      <div class="card">
+        <h4>📄 Resume Summary</h4>
+        <div><strong>Word count:</strong> <span id="wordCount">—</span></div>
+        <div><strong>Role match %:</strong> <span id="roleMatch">—</span></div>
+        <div style="margin-top:8px;">
+          <strong>Summary:</strong>
+          <div id="summary" style="margin-top:6px;color:#374151"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h4>🧾 ATS Score</h4>
+        <div style="font-size:28px;font-weight:700;color:#1e3a8a"><span id="atsScore">—</span>%</div>
+        <div style="margin-top:8px;color:#6b7280" id="atsCriteria">Criteria: —</div>
+      </div>
+    </div>
+
+    <!-- skills -->
+    <div style="margin-top:18px;">
+      <div class="card">
+        <h4>🛠 Skills Analysis</h4>
+        <div style="display:flex;gap:20px;flex-wrap:wrap">
+          <div style="flex:1">
+            <h5>Technical Skills</h5>
+            <div id="techSkills" class="skills">—</div>
+          </div>
+          <div style="flex:1">
+            <h5>Soft Skills</h5>
+            <div id="softSkills" class="skills">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- history -->
+    <div class="history" id="historyBox">
+      <h4>Analysis History</h4>
+      <div id="historyList">No records yet.</div>
+    </div>
+  </div>
+
+<script>
+const backend = "http://localhost:8000"; // FastAPI server
+
+document.getElementById("uploadBtn").addEventListener("click", async () => {
+  const fileEl = document.getElementById("resumeFile");
+  if (!fileEl.files.length) {
+    alert("Please choose a PDF file first.");
+    return;
+  }
+  const file = fileEl.files[0];
+  document.getElementById("uploadStatus").innerText = "Uploading..."
+  const form = new FormData();
+  form.append("file", file);
+
+  try {
+    const res = await fetch(backend + "/upload_resume", {
+      method: "POST",
+      body: form
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      alert("Error: " + data.detail || JSON.stringify(data));
+      document.getElementById("uploadStatus").innerText = "";
+      return;
+    }
+    document.getElementById("uploadStatus").innerText = "Done";
+    renderResult(data.data);
+    fetchHistory(); // refresh history
+  } catch (err) {
+    console.error(err);
+    alert("Upload failed: " + err.message);
+    document.getElementById("uploadStatus").innerText = "";
+  }
+});
+
+function renderResult(parsed) {
+  document.getElementById("name").innerText = parsed.name || "—";
+  document.getElementById("email").innerText = parsed.email || "—";
+  document.getElementById("phone").innerText = parsed.phone || "—";
+  document.getElementById("linkedin").innerText = parsed.linkedin || "—";
+  document.getElementById("github").innerText = parsed.github || "—";
+  document.getElementById("wordCount").innerText = parsed.word_count || "—";
+  document.getElementById("roleMatch").innerText = parsed.role_match || "—";
+  document.getElementById("summary").innerText = parsed.summary || "—";
+  document.getElementById("atsScore").innerText = parsed.ats_score || "—";
+  // criteria (we will display a simple text until you want detail)
+  document.getElementById("atsCriteria").innerText = "Format & keywords & sections";
+
+  // skills
+  const tech = parsed.skills?.technical || [];
+  const soft = parsed.skills?.soft || [];
+  const techContainer = document.getElementById("techSkills");
+  techContainer.innerHTML = "";
+  if (tech.length === 0) techContainer.innerText = "—";
+  else tech.forEach(s => {
+    const el = document.createElement("div");
+    el.className = "skill-pill";
+    el.innerText = s;
+    techContainer.appendChild(el);
+  });
+
+  const softContainer = document.getElementById("softSkills");
+  softContainer.innerHTML = "";
+  if (soft.length === 0) softContainer.innerText = "—";
+  else soft.forEach(s => {
+    const el = document.createElement("div");
+    el.className = "skill-pill";
+    el.innerText = s;
+    softContainer.appendChild(el);
+  });
+}
+
+async function fetchHistory(){
+  try {
+    const res = await fetch(backend + "/history");
+    const data = await res.json();
+    const list = data.history || [];
+    const box = document.getElementById("historyList");
+    if (!list.length) {
+      box.innerText = "No records yet.";
+      return;
+    }
+    box.innerHTML = "";
+    list.forEach(r => {
+      const el = document.createElement("div");
+      el.style.borderBottom = "1px solid #eee";
+      el.style.padding = "8px 4px";
+      el.innerHTML = `<strong>${r.filename || r.name || 'Resume #' + r.id}</strong>
+                      <div style="color:#555;font-size:13px">${(r.summary || '').slice(0,140)}${r.summary && r.summary.length>140 ? '...' : ''}</div>
+                      <div style="font-size:12px;color:#777">ATS: ${r.ats_score} • Role Match: ${r.role_match} • ${new Date(r.created_at).toLocaleString()}</div>`;
+      box.appendChild(el);
+    });
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+// start
+fetchHistory();
+</script>
+</body>
+</html>

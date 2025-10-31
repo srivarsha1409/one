@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Backend Test</title>
+</head>
+<body>
+    <h1>Backend Connectivity Test</h1>
+    <button onclick="testBackend()">Test Backend</button>
+    <button onclick="testUpload()">Test Upload Endpoint</button>
+    <div id="result"></div>
+
+    <script>
+        async function testBackend() {
+            const result = document.getElementById('result');
+            try {
+                const response = await fetch('http://localhost:8000/test');
+                const data = await response.json();
+                result.innerHTML = `<p style="color: green;">✅ Backend test successful: ${JSON.stringify(data)}</p>`;
+            } catch (error) {
+                result.innerHTML = `<p style="color: red;">❌ Backend test failed: ${error.message}</p>`;
+            }
+        }
+
+        async function testUpload() {
+            const result = document.getElementById('result');
+            try {
+                const response = await fetch('http://localhost:8000/api/admin/upload_resume', {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                result.innerHTML = `<p style="color: orange;">⚠️ Upload endpoint response: ${JSON.stringify(data)}</p>`;
+            } catch (error) {
+                result.innerHTML = `<p style="color: red;">❌ Upload test failed: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
